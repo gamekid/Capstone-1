@@ -14,6 +14,7 @@ public var trotAfterSeconds = 3.0;
 public var canJump = true;
 public var jumpSound : AudioClip;
 public var orbPrefab : Rigidbody;
+public var punchPrefab : Rigidbody;
 
 enum CharacterState {
 	Idle = 0,
@@ -46,6 +47,10 @@ private var lastJumpStartHeight = 0.0;
 private var inAirVelocity = Vector3.zero;
 private var lastGroundedTime = 0.0;
 private var isControllable = true;
+
+//public vars that should not show up in inspector so they stay consistent
+@System.NonSerialized
+var punchTimer : float = .5; 
 
 function Awake() {
 	moveDirection = transform.TransformDirection( Vector3.forward );
@@ -227,10 +232,14 @@ function Update() {
 	// lock avatar movement along the z-axis
 	transform.position.z = initialZ;
 	
+	//PUNCH
 	if( Input.GetButtonDown( 'Fire1 ' + playerLetter ) ) {
-		var orbClone : Rigidbody = Instantiate( orbPrefab, transform.position, transform.rotation );
-		orbClone.rigidbody.AddForce( Vector3( (facing == 'left' ? -1 : 1), 0, 0 ) * 500.0 );
-		Physics.IgnoreCollision( orbClone.collider, collider );
+		var punchPos : Vector3 = transform.position;
+		punchPos.y += 1;
+		punchPos.x += -.5;
+		var punchClone : Rigidbody = Instantiate( punchPrefab, punchPos, transform.rotation );
+		punchClone.rigidbody.AddForce( Vector3( (facing == 'left' ? -1 : 1), 0, 0 ) * 500.0 );
+		Physics.IgnoreCollision( punchClone.collider, collider );
 	}
 }
 
