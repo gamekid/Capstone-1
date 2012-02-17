@@ -14,7 +14,8 @@ public var trotAfterSeconds = 3.0;
 public var canJump = true;
 public var jumpSound : AudioClip;
 public var orbPrefab : Rigidbody;
-public var punchPrefab : Collider;
+public var attackType: String;
+public var hit = false;
 
 enum CharacterState {
 	Idle = 0,
@@ -33,6 +34,7 @@ private var jumpTimeout = 0.15;
 private var groundedTimeout = 0.25;
 private var moveDirection = Vector3.zero; // the current move direction in x-z
 private var verticalSpeed = 0.0; // the current vertical speed
+private var horizontalSpeed = 0.0; //the current horizontal speed
 private var moveSpeed = 0.0; // the current x-z move speed
 private var collisionFlags : CollisionFlags; // the last collision flags returned from controller.Move
 private var jumping = false; // are we jumping? (initiated with jump button and not grounded yet)
@@ -58,6 +60,7 @@ function Awake() {
 	playerLetter = this.name.Substring( (this.name.Length - 3), 3 ); // grab last 3 characters of name string
 	
 	initialZ = transform.position.z; // set initial z-axis value, for use  later in Update()
+	attackType = "";
 }
 
 function UpdateSmoothedMovementDirection() {
@@ -189,12 +192,15 @@ function Update() {
 	ApplyJumping();
 	
 	// calculate actual motion
-	var movement = moveDirection * moveSpeed + Vector3( 0, verticalSpeed, 0 ) + inAirVelocity;
+	var movement = moveDirection * moveSpeed + Vector3( horizontalSpeed, verticalSpeed, 0) + inAirVelocity;
 	movement *= Time.deltaTime;
 	
 	// move the controller
 	var controller : CharacterController = GetComponent( CharacterController );
 	collisionFlags = controller.Move( movement );
+	
+	//if (!Attack.gameObject.active)
+	//	attackType = "";
 	
 	var dist : float = 0.0;
 	var closestDist : float = 999.0;
@@ -234,13 +240,24 @@ function Update() {
 	
 	//PUNCH
 	if( Input.GetButtonDown( 'Fire1 ' + playerLetter ) ) {
-		 punchPrefab.GetComponent(Punch).activeTest = true;
+		var attackScript = transform.FindChild("Attack").GetComponent(Attack);
+		attackType = "punch";
+		attackScript.gameObject.active = true;
 	}
 }
 
 function OnControllerColliderHit( hit : ControllerColliderHit ) {
 	// Debug.DrawRay( hit.point, hit.normal );
 	if (hit.moveDirection.y > 0.01) return;
+}
+
+function OnCollisionEnter(collision : Collision) {
+    // Debug-draw all contact points and normals
+    for (var contact : ContactPoint in collision.contacts) {
+        Debug.DrawRay(contact.point, contact.normal, Color.white);
+    }
+    print("COLLISION");
+    
 }
 
 function GetPlayerLetter() {
