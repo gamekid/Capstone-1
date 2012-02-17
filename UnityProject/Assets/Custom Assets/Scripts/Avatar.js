@@ -14,7 +14,7 @@ public var trotAfterSeconds = 3.0;
 public var canJump = true;
 public var jumpSound : AudioClip;
 public var orbPrefab : Rigidbody;
-public var punchPrefab : Rigidbody;
+public var punchPrefab : Collider;
 
 enum CharacterState {
 	Idle = 0,
@@ -82,7 +82,7 @@ function UpdateSmoothedMovementDirection() {
 	else
 		movingBack = false;
 	
-	var wasMoving = isMoving;
+	//var wasMoving = isMoving;
 	isMoving = Mathf.Abs( h ) > 0.1 || Mathf.Abs( v ) > 0.1;
 	
 	//var targetDirection = h * right + v * forward; // target direction relative to the camera
@@ -143,7 +143,7 @@ function ApplyJumping() {
 
 function ApplyGravity() {
 	if (isControllable) { // don't move player at all if not controllable
-		var jumpButton = Input.GetButton( 'Jump ' + playerLetter ); // apply gravity
+		//var jumpButton = Input.GetButton( 'Jump ' + playerLetter ); // apply gravity
 		
 		// when we reach the apex of the jump we send out a message
 		if( jumping && !jumpingReachedApex && verticalSpeed <= 0.0 ) {
@@ -234,12 +234,7 @@ function Update() {
 	
 	//PUNCH
 	if( Input.GetButtonDown( 'Fire1 ' + playerLetter ) ) {
-		var punchPos : Vector3 = transform.position;
-		punchPos.y += 1;
-		punchPos.x += -.5;
-		var punchClone : Rigidbody = Instantiate( punchPrefab, punchPos, transform.rotation );
-		punchClone.rigidbody.AddForce( Vector3( (facing == 'left' ? -1 : 1), 0, 0 ) * 500.0 );
-		Physics.IgnoreCollision( punchClone.collider, collider );
+		 punchPrefab.GetComponent(Punch).activeTest = true;
 	}
 }
 
