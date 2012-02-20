@@ -213,8 +213,8 @@ function Update() {
 	
 	if (Mathf.Abs(horizontalSpeed) < .1 || Mathf.Abs(closestDist) > 2)
 		horizontalSpeed = 0;
-	
-	horizontalSpeed = horizontalSpeed*.85;
+	else
+		horizontalSpeed = horizontalSpeed*.85;
 	
 	
 	// calculate actual motion
@@ -254,35 +254,6 @@ function Update() {
 		attackScript.gameObject.active = true;
 	}
 }
-
-function OnControllerColliderHit (hit : ControllerColliderHit) {
-    
-    var body : Rigidbody = hit.collider.attachedRigidbody;
-    var attackBody = transform.Find("Attack");
-	//print("test");
-    // no rigidbody
-    if (body != null )//|| !body.isKinematic){
-    {
-    	//print("actual collision!!!!!!!!!!!!!");
-    	
-    }else{
-    	//print("Leaving collision function");
-    	return;
-    }
-        
-//    else if (body == attackBody.collider.attachedRigidbody){
-//    	print("COLLISION");
-//    }
-   
-}
-
-function FixedUpdate (){
-
-	
-}
-
-
-
  
 function GetPlayerLetter() {
 	return playerLetter;

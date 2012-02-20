@@ -18,7 +18,7 @@ function Update(){
 		gameObject.active = true;
 		switch (parentScript.attackType){
 			case 'punch':
-				lifeTime = .1;
+				lifeTime = .2;
 				transform.localScale.y = .25;
 				transform.localPosition.x = -.4;
 				transform.localPosition.y = .55;
@@ -37,15 +37,12 @@ var dir : float = 0;
 @System.NonSerialized 
 var pushPower : float = 500;
 function OnCollisionEnter(collision : Collision) {
-	var body : Rigidbody = collision.collider.attachedRigidbody;
-	var enemyController : Rigidbody = enemyScript.CharacterController;
-	if (collision.gameObject != transform.parent){
-		if (parentScript.facing == 'right'){
+	if (collision.gameObject != transform.parent){ //this if statement isnt working right so i added dist detection in avatar
+		if (parentScript.facing == 'right')
 			dir = 1;
-		}else {
+		else
 			dir = -1;
-		}
-	
+		
 		enemyScript.horizontalSpeed = pushPower * dir * Time.deltaTime;
 	}
 }

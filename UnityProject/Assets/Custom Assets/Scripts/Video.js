@@ -7,6 +7,8 @@ private var parentScript : Avatar;
 // these get set in the inspector
 public var testTex : MovieTexture;
 public var testTexAlpha : MovieTexture;
+public var punchTex : MovieTexture;
+public var punchMask : MovieTexture;
 
 function Start() {
 	parentScript = transform.parent.GetComponent( Avatar );
@@ -21,8 +23,8 @@ function Update() {
 		case parentScript.IsJumping():
 			SetTexture( testTex, testTexAlpha );
 			break;
-		case IsButtonDown( 'Fire1' ):
-			//SetTexture( mainTex, maskTex );
+		case parentScript.attackType == 'punch':
+			SetTexture( punchTex, punchMask );
 			break;
 		default:
 			SetTexture( mainTex, maskTex );
