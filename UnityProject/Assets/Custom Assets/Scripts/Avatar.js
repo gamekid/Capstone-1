@@ -10,12 +10,15 @@ public var jumpHeight = 0.5; // how high do we jump when pressing jump and letti
 public var gravity = 20.0; // the gravity for the character
 public var speedSmoothing = 10.0; // the gravity in controlled descent mode
 public var rotateSpeed = 500.0;
+public var horizontalSpeed : float = 0.0; //the current horizontal speed
 public var trotAfterSeconds = 3.0;
 public var canJump = true;
 public var jumpSound : AudioClip;
 public var orbPrefab : Rigidbody;
 public var attackType: String;
+public var hitType :String;
 public var hit = false;
+public var facing = 'left';
 
 enum CharacterState {
 	Idle = 0,
@@ -25,16 +28,14 @@ enum CharacterState {
 	Jumping = 4,
 }
 
-private var playerLetter;
+
 private var initialZ;
-private var facing = 'left';
 private var _characterState : CharacterState;
 private var jumpRepeatTime = 0.05;
 private var jumpTimeout = 0.15;
 private var groundedTimeout = 0.25;
 private var moveDirection = Vector3.zero; // the current move direction in x-z
 private var verticalSpeed = 0.0; // the current vertical speed
-private var horizontalSpeed = 0.0; //the current horizontal speed
 private var moveSpeed = 0.0; // the current x-z move speed
 private var collisionFlags : CollisionFlags; // the last collision flags returned from controller.Move
 private var jumping = false; // are we jumping? (initiated with jump button and not grounded yet)
@@ -51,8 +52,11 @@ private var lastGroundedTime = 0.0;
 private var isControllable = true;
 
 //public vars that should not show up in inspector so they stay consistent
+@System.NonSerialized 
+public var playerLetter;
+
 @System.NonSerialized
-var punchTimer : float = .5; 
+var punchTimer : float = .5;
 
 function Awake() {
 	moveDirection = transform.TransformDirection( Vector3.forward );
@@ -61,6 +65,7 @@ function Awake() {
 	
 	initialZ = transform.position.z; // set initial z-axis value, for use  later in Update()
 	attackType = "";
+	hitType = "";
 }
 
 function UpdateSmoothedMovementDirection() {
@@ -180,27 +185,6 @@ function DidJump() {
 function Update() {
 	if (!isControllable) Input.ResetInputAxes(); // kill all inputs if not controllable
 	if (Input.GetButtonDown( 'Jump ' + playerLetter )) lastJumpButtonTime = Time.time;
-
-	UpdateSmoothedMovementDirection();
-	
-	// apply gravity
-	// - extra power jump modifies gravity
-	// - controlledDescent mode modifies gravity
-	ApplyGravity();
-
-	// apply jumping logic
-	ApplyJumping();
-	
-	// calculate actual motion
-	var movement = moveDirection * moveSpeed + Vector3( horizontalSpeed, verticalSpeed, 0) + inAirVelocity;
-	movement *= Time.deltaTime;
-	
-	// move the controller
-	var controller : CharacterController = GetComponent( CharacterController );
-	collisionFlags = controller.Move( movement );
-	
-	//if (!Attack.gameObject.active)
-	//	attackType = "";
 	
 	var dist : float = 0.0;
 	var closestDist : float = 999.0;
@@ -215,6 +199,32 @@ function Update() {
 		dist = transform.localPosition.x - gO.transform.localPosition.x;
 		if (Mathf.Abs( dist ) < Mathf.Abs( closestDist )) closestDist = dist;
 	}
+
+	UpdateSmoothedMovementDirection();
+	
+	// apply gravity
+	// - extra power jump modifies gravity
+	// - controlledDescent mode modifies gravity
+	ApplyGravity();
+
+	// apply jumping logic
+	ApplyJumping();
+	
+	
+	if (Mathf.Abs(horizontalSpeed) < .1 || Mathf.Abs(closestDist) > 2)
+		horizontalSpeed = 0;
+	
+	horizontalSpeed = horizontalSpeed*.85;
+	
+	
+	// calculate actual motion
+	var movement = moveDirection * moveSpeed + Vector3(horizontalSpeed, verticalSpeed, 0) + inAirVelocity;
+	movement *= Time.deltaTime;
+	
+	// move the controller
+	var controller : CharacterController = GetComponent( CharacterController );
+	collisionFlags = controller.Move( movement );
+
 	
 	// face left or right (to face closest enemy)
 	if( closestDist > 0.0 ) {
@@ -237,7 +247,6 @@ function Update() {
 	
 	// lock avatar movement along the z-axis
 	transform.position.z = initialZ;
-	
 	//PUNCH
 	if( Input.GetButtonDown( 'Fire1 ' + playerLetter ) ) {
 		var attackScript = transform.FindChild("Attack").GetComponent(Attack);
@@ -246,20 +255,35 @@ function Update() {
 	}
 }
 
-function OnControllerColliderHit( hit : ControllerColliderHit ) {
-	// Debug.DrawRay( hit.point, hit.normal );
-	if (hit.moveDirection.y > 0.01) return;
-}
-
-function OnCollisionEnter(collision : Collision) {
-    // Debug-draw all contact points and normals
-    for (var contact : ContactPoint in collision.contacts) {
-        Debug.DrawRay(contact.point, contact.normal, Color.white);
-    }
-    print("COLLISION");
+function OnControllerColliderHit (hit : ControllerColliderHit) {
     
+    var body : Rigidbody = hit.collider.attachedRigidbody;
+    var attackBody = transform.Find("Attack");
+	//print("test");
+    // no rigidbody
+    if (body != null )//|| !body.isKinematic){
+    {
+    	//print("actual collision!!!!!!!!!!!!!");
+    	
+    }else{
+    	//print("Leaving collision function");
+    	return;
+    }
+        
+//    else if (body == attackBody.collider.attachedRigidbody){
+//    	print("COLLISION");
+//    }
+   
 }
 
+function FixedUpdate (){
+
+	
+}
+
+
+
+ 
 function GetPlayerLetter() {
 	return playerLetter;
 }
