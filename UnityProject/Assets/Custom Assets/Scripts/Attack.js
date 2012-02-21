@@ -37,13 +37,19 @@ var dir : float = 0;
 @System.NonSerialized 
 var pushPower : float = 500;
 function OnCollisionEnter(collision : Collision) {
-	if (collision.gameObject != transform.parent){ //this if statement isnt working right so i added dist detection in avatar
-		if (parentScript.facing == 'right')
-			dir = 1;
-		else
-			dir = -1;
-		
-		enemyScript.horizontalSpeed = pushPower * dir * Time.deltaTime;
+	// Check if the collider we hit has a rigidbody
+  	// Then apply the force
+    for (var contact : ContactPoint in collision.contacts) {
+		if (contact.otherCollider.name != transform.parent.name){//if the enemy has been hit
+			if (parentScript.facing == 'right')
+				dir = 1;
+			else
+				dir = -1;
+			enemyScript.horizontalSpeed = pushPower * dir * Time.deltaTime;
+			enemyScript.health -= 20;
+			lifeTime = 0;
+			return;
+		}
 	}
 }
 

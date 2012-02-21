@@ -22,12 +22,15 @@ function Update() {
 	switch( true ) {
 		case parentScript.IsJumping():
 			SetTexture( testTex, testTexAlpha );
+			transform.localScale.x = 1.8;
 			break;
 		case parentScript.attackType == 'punch':
 			SetTexture( punchTex, punchMask );
+			transform.localScale.x = 2;
 			break;
 		default:
 			SetTexture( mainTex, maskTex );
+			transform.localScale.x = 1.8;
 			break;
 	}
 }
@@ -51,5 +54,5 @@ function ForceTexture( base : MovieTexture, alpha : MovieTexture ) {
 }
 
 function IsCurTex( tex : MovieTexture ) {
-	return (renderer.material.mainTexture == tex);
+	return (renderer.material.mainTexture.name == tex.name);
 }

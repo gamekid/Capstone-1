@@ -2,6 +2,8 @@
 @script RequireComponent( CharacterController ) // require a "character controller"
 @script RequireComponent( AudioSource ) // require an "audio source"
 
+public var health : int = 100;
+public var death : boolean = false;
 public var walkSpeed = 2.0;
 public var trotSpeed = 4.0; // after trotAfterSeconds of walking we trot with trotSpeed
 public var runSpeed = 6.0; // when pressing "Fire3" button (cmd) we start running
@@ -55,9 +57,6 @@ private var isControllable = true;
 @System.NonSerialized 
 public var playerLetter;
 
-@System.NonSerialized
-var punchTimer : float = .5;
-
 function Awake() {
 	moveDirection = transform.TransformDirection( Vector3.forward );
 	
@@ -66,6 +65,7 @@ function Awake() {
 	initialZ = transform.position.z; // set initial z-axis value, for use  later in Update()
 	attackType = "";
 	hitType = "";
+	health = 100;
 }
 
 function UpdateSmoothedMovementDirection() {
@@ -211,7 +211,7 @@ function Update() {
 	ApplyJumping();
 	
 	
-	if (Mathf.Abs(horizontalSpeed) < .1 || Mathf.Abs(closestDist) > 2)
+	if (Mathf.Abs(horizontalSpeed) < .1 )//|| Mathf.Abs(closestDist) > 2)
 		horizontalSpeed = 0;
 	else
 		horizontalSpeed = horizontalSpeed*.85;
@@ -253,6 +253,16 @@ function Update() {
 		attackType = "punch";
 		attackScript.gameObject.active = true;
 	}
+	
+	if (health <=0)
+		Death();
+	
+	
+} //end update
+
+function Death(){
+	death = true;
+	
 }
  
 function GetPlayerLetter() {
